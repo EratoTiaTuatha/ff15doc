@@ -5,9 +5,6 @@ from XV_Blender.XV_boneCruncher import *
 from XV_Blender.XV_read import *
 from XV_Blender.Vampires_but_also_Ponies import *
 
-
-
-
 class microManager():
 	def __init__(self,da_name):
 		self.closeGPU       = False
