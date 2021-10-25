@@ -4,6 +4,7 @@ imported into the ArmatureData class
 """
 
 import mathutils
+import time
 
 import bpy
 from rna_prop_ui import rna_idprop_ui_prop_get
@@ -44,10 +45,17 @@ def generate_armature(state, armature_data):
 
     bpy.ops.object.mode_set(mode='EDIT')
 
+    adjusted = {}
+
+    for bone in armature_data.bones:
+        adjusted[bone.id] = False
+
     for bone in armature_data.bones:
         new_bone = bpy.context.active_object.data.edit_bones.new(bone.name)
         rna_idprop_ui_prop_get(new_bone, "ID", create=True)
         new_bone["ID"] = bone.id
+
+        print("Processing bone " + str(bone.id))
 
         if bone.id > 0:
             parent_id = armature_data.parent_IDs[bone.id - 1]
@@ -60,14 +68,32 @@ def generate_armature(state, armature_data):
                  head_position_matrix[2][3]))
 
             parent = bpy.context.active_object.data.edit_bones[parent_name]
-            parent.tail = head_position
+
+            if not adjusted[parent_id]:
+                parent.tail = head_position
+                adjusted[parent_id] = True
+                if parent.head == parent.tail:
+                    parent.tail = parent.tail + \
+                        mathutils.Vector((0.001, 0.001, 0.001))
 
             new_bone.parent = parent
             new_bone.head = head_position
             new_bone.tail = head_position + \
                 mathutils.Vector((0.001, 0.001, 0.001))
+
+            print("Bone[" + str(bone.id) + "] " + bone.name + " (Parent[" +
+                  str(parent_id) + "] " + parent_name + ") at " + str(head_position))
         else:
-            new_bone.head = mathutils.Vector((0, 0, 0))
+            head_position_matrix = inv(bone.head_position_matrix)
+            head_position = mathutils.Vector(
+                (head_position_matrix[0][3],
+                 head_position_matrix[1][3],
+                 head_position_matrix[2][3]))
+
+            new_bone.head = head_position
+            # Needs some length or Blender will delete
             new_bone.tail = mathutils.Vector((0, 0, 0.1))
+            print("Bone[" + str(bone.id) + "] " + bone.name +
+                  " (NO PARENT) at " + str(head_position))
 
     bpy.ops.object.mode_set(mode='OBJECT')
