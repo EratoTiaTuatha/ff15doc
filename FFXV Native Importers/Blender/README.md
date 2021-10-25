@@ -1,1 +1,0 @@
-To install, dump the whole "Blender" folder in your add-ons directory.

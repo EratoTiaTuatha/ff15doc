@@ -1,0 +1,19 @@
+{
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true,
+    "python.autoComplete.extraPaths": [
+        "C:/Autocomplete/2.80"
+    ],
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.append('C:/Autocomplete/2.80')"
+    ],
+    "python.analysis.extraPaths": [
+        "C:/Autocomplete/2.80"
+    ],
+    "python.linting.pycodestyleEnabled": true
+}
