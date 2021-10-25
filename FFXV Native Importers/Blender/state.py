@@ -26,14 +26,14 @@ class StateData():
         # as some code needs to be adjusted for compatibility
         self.is_new_blender = self._get_is_new_blender()
 
-    def _get_file_name_no_extension(gfxbin_file_path):
+    def _get_file_name_no_extension(cls, gfxbin_file_path):
         """
         Internal use only
         Use file_name_no_extension to get the stored value
         """
         return gfxbin_file_path.split("\\")[-1].split(".")[0]
 
-    def _get_gpubin_file_path(gfxbin_file_path):
+    def _get_gpubin_file_path(cls, gfxbin_file_path):
         """
         Internal use only
         Use gpubin_file_path to get the stored value
@@ -48,7 +48,7 @@ class StateData():
         else:
             return ""
 
-    def _get_amdl_file_path(gfxbin_file_path):
+    def _get_amdl_file_path(cls, gfxbin_file_path):
         """
         Internal use only
         Use amdl_file_path to get the stored value
@@ -59,14 +59,14 @@ class StateData():
         f_idx = p1.rfind("\\")
         return p1 + "\\" + p1[f_idx + 1:] + ".amdl"
 
-    def _get_group_name(gfxbin_file_path):
+    def _get_group_name(cls, gfxbin_file_path):
         """
         Internal use only
         Use group_name to get the stored value
         """
         return os.path.dirname(gfxbin_file_path).split("\\")[-2]
 
-    def _get_is_new_blender():
+    def _get_is_new_blender(cls):
         """
         Internal use only
         Use is_new_blender to get the stored value
