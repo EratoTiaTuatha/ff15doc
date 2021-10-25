@@ -1,6 +1,6 @@
 import bpy
 
-from version_helper import (
+from .version_helper import (
     get_scene_objects,
     does_collection_exist,
     get_armature

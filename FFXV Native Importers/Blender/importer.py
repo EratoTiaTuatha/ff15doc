@@ -4,10 +4,10 @@ Calls many internal methods in a specific order
 The order is important due to movement of the cursor within the files
 """
 
-from internal._read_bone_dictionary import _read_bone_dictionary
-from internal._read_mesh_metadata import _read_mesh_count, _read_mesh_metadata
-from internal._read_mesh_data import _read_mesh_data
-from internal._read_armature_data import _read_armature_data
+from .internal._read_bone_dictionary import _read_bone_dictionary
+from .internal._read_mesh_metadata import _read_mesh_count, _read_mesh_metadata
+from .internal._read_mesh_data import _read_mesh_data
+from .internal._read_armature_data import _read_armature_data
 
 
 def import_mesh_data(state):

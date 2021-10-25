@@ -5,8 +5,8 @@ Methods that assist in reading of mesh metadata from gfxbin
 
 import struct
 
-from entities import MeshMetadata, MeshExtraMetadata
-from _read_helper import (
+from ..entities import MeshMetadata, MeshExtraMetadata
+from ._read_helper import (
     _read_part,
     _read_string,
     _read_unknown_count,

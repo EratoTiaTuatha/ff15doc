@@ -9,7 +9,7 @@ import bpy
 from rna_prop_ui import rna_idprop_ui_prop_get
 from numpy.linalg import inv
 
-from version_helper import does_collection_exist
+from .version_helper import does_collection_exist
 
 
 def generate_armature(state, armature_data):

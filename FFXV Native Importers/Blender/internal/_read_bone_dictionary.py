@@ -5,7 +5,7 @@ Methods that assist in reading bone data from gfxbin
 
 import struct
 
-from _read_helper import _read_part, _read_string
+from ._read_helper import _read_part, _read_string
 
 
 def _read_bone_dictionary(gfxbin_file):

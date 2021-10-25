@@ -9,11 +9,11 @@ import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 
-from state import StateData
-from importer import import_mesh_data, import_armature_data
-from generate_armature import generate_armature
-from generate_mesh import generate_mesh
-from version_helper import does_collection_exist
+from .state import StateData
+from .importer import import_mesh_data, import_armature_data
+from .generate_armature import generate_armature
+from .generate_mesh import generate_mesh
+from .version_helper import does_collection_exist
 
 
 class ImportOperator(Operator, ImportHelper):
@@ -22,7 +22,7 @@ class ImportOperator(Operator, ImportHelper):
     bl_label = "Import gfxbin"
     filename_ext = ".gfxbin"
 
-    def execute(self):
+    def execute(self, context):
         start_time = time.time()
         state = StateData(self.filepath)
 

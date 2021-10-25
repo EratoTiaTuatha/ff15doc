@@ -5,7 +5,7 @@ Will also register the add-on if called as a script
 
 import bpy
 
-from importer import ImportOperator
+from .menu import ImportOperator
 
 bl_info = {
     "name": "GFXBIN format",

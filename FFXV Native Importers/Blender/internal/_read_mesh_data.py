@@ -5,7 +5,7 @@ Reads all mesh data from the gpubin file
 
 import numpy
 
-from entities import MeshData
+from ..entities import MeshData
 
 
 def _read_mesh_data(file_info, gpubin_file, metadata):

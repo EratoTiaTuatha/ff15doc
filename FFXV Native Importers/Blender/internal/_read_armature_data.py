@@ -7,8 +7,8 @@ import struct
 
 import numpy
 
-from entities import ArmatureData, BoneData
-from _read_helper import _is_amdl_from_episode_duscae, _read_string, _align
+from ..entities import ArmatureData, BoneData
+from ._read_helper import _is_amdl_from_episode_duscae, _read_string, _align
 
 
 def _read_armature_data(amdl_file):
