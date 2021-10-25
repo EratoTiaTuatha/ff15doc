@@ -142,6 +142,8 @@ def _read_armature_data(amdl_file):
         bone_data.head_position_matrix = head_position_matrix
         armature_data.bones.append(bone_data)
 
+    return armature_data
+
 
 def _read_trans_header(amdl_file, is_duscae):
     """Constructs a dictionary of metadata for Trans"""

@@ -43,6 +43,7 @@ class MeshMetadata():
     """
 
     def __init__(self):
+        self.name = ""
         self.read_count = 0
         self.face_type = 0
         self.faces_offset = 0

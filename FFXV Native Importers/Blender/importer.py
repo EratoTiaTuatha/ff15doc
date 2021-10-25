@@ -27,7 +27,6 @@ def import_mesh_data(state):
     mesh_data = []
     bone_dictionary = _read_bone_dictionary(gfxbin_file)
     mesh_count = _read_mesh_count(gfxbin_file)
-    print(mesh_count)
 
     for i in range(mesh_count):
         mesh_metadata = _read_mesh_metadata(gfxbin_file)
@@ -37,6 +36,7 @@ def import_mesh_data(state):
             if mesh is not None:
                 # Shouldn't need bone_dictionary stored per mesh
                 # Refactor this later
+                mesh.name = mesh_metadata.name
                 mesh.bone_dictionary = bone_dictionary
                 mesh_data.append(mesh)
 
@@ -57,5 +57,6 @@ def import_armature_data(state):
         amdl_file = open(state.amdl_file_path, "rb")
         armature_data = _read_armature_data(amdl_file)
         amdl_file.close()
+        return armature_data
     else:
         return None

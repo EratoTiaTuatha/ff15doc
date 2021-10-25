@@ -58,7 +58,8 @@ class StateData():
         p0 = os.path.split(path_name)
         p1 = p0[0]
         f_idx = p1.rfind("\\")
-        return p1 + "\\" + p1[f_idx + 1:] + ".amdl"
+        amdl_path = p1 + "\\" + p1[f_idx + 1:] + ".amdl"
+        return amdl_path
 
     def _get_group_name(cls, gfxbin_file_path):
         """

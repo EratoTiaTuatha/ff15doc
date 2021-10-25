@@ -29,7 +29,7 @@ def generate_mesh(state, mesh_data):
             per_loop_list[loop.index] = uv_dictionary.get(loop.vertex_index)
 
         per_loop_list = [uv for pair in per_loop_list for uv in pair]
-        mesh.uv_layers[data].data.foreach_set("uv", per_loop_list)
+        mesh.uv_layers[i].data.foreach_set("uv", per_loop_list)
 
     mesh.validate()
     mesh.update()

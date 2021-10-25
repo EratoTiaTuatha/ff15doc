@@ -31,9 +31,10 @@ def _read_mesh_metadata(gfxbin_file):
     Reads relevant mesh matadata from gfxbin file
     Returns metadata as MeshMetadata entity
     """
-    _read_mesh_name(gfxbin_file)    # Skip mesh name
+    mesh_name = _read_mesh_name(gfxbin_file)
 
     mesh_metadata = _read_mesh_header(gfxbin_file)
+    mesh_metadata.name = mesh_name
 
     mesh_metadata.extras.append(
         _read_extra_mesh_metadata(gfxbin_file, True))
