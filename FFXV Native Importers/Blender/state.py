@@ -12,6 +12,7 @@ class StateData():
 
     def __init__(self, gfxbin_file_path):
         self.gfxbin_file_path = gfxbin_file_path
+        self.gfxbin_file_size = os.path.getsize(gfxbin_file_path)
         self.gpubin_file_path = self._get_gpubin_file_path(gfxbin_file_path)
         self.amdl_file_path = self._get_amdl_file_path(gfxbin_file_path)
 

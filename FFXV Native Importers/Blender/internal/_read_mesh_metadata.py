@@ -21,7 +21,7 @@ def _read_mesh_count(gfxbin_file):
     _read_string(gfxbin_file)  # Skip the base name (usually Parts_Base)
     _read_part(gfxbin_file)    # Skip what may be a Count?
 
-    struct.unpack("B", gfxbin_file.read(1))[0] - 0xA0    # Skip Name Size
+    struct.unpack("B", gfxbin_file.read(1))[0] - 0xA0       # Skip Name Size
     _read_string(gfxbin_file)								# Skip Cluster Name
     return _read_part(gfxbin_file)
 
@@ -31,9 +31,7 @@ def _read_mesh_metadata(gfxbin_file):
     Reads relevant mesh matadata from gfxbin file
     Returns metadata as MeshMetadata entity
     """
-    # TODO: Come back and remove if not referenced anywhere else
-    # mesh_name = file_info.file_name_no_extension + \
-    #   "__" + _read_mesh_name(gfxbin_file)
+    _read_mesh_name(gfxbin_file)    # Skip mesh name
 
     mesh_metadata = _read_mesh_header(gfxbin_file)
 

@@ -31,10 +31,10 @@ class ImportOperator(Operator, ImportHelper):
         armature_data = import_armature_data(state)
 
         # Generate Blender Objects from Python Object Data
-        generate_armature(armature_data)
+        generate_armature(state, armature_data)
 
         for mesh in mesh_data:
-            generate_mesh(mesh)
+            generate_mesh(state, mesh)
 
             if state.is_new_blender:
                 if not does_collection_exist(state.group_name):

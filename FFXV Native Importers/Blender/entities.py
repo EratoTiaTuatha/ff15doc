@@ -27,7 +27,7 @@ class MeshData():
 
     def __init__(self):
         self.face_data = []
-        self.UV_data = []
+        self.UV_data = {}
         self.VA = []
         self.bone_ids = []
         self.bone_dictionary = {}

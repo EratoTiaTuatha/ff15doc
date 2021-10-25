@@ -8,7 +8,7 @@ import bpy
 is_new_blender = bpy.app.version >= (2, 80, 0)
 
 
-def get_scene_objects(is_new_blender):
+def get_scene_objects():
     if is_new_blender:
         return bpy.context.view_layer.objects
     else:

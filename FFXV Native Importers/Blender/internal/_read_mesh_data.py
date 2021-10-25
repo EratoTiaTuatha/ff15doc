@@ -3,6 +3,8 @@ For internal use only
 Reads all mesh data from the gpubin file
 """
 
+import mathutils
+
 import numpy
 
 from ..entities import MeshData
@@ -33,10 +35,10 @@ def _read_faces(file_info, gpubin_file, metadata, mesh_data):
 
     cn = 0
     if metadata.face_type == 1:
-        cn = metadata.byteSize // 4
+        cn = metadata.byte_size // 4
         fi = numpy.fromfile(gpubin_file, dtype='<L', count=cn)
     else:  # 0
-        cn = metadata.byteSize // 2
+        cn = metadata.byte_size // 2
         fi = numpy.fromfile(gpubin_file, dtype='<H', count=cn)
 
     fi_0 = fi.view().reshape((cn // 3, 3))
@@ -110,25 +112,25 @@ def _read_normals_and_UVs(gpubin_file, metadata, mesh_data):
             position_data[:, 1:2] *= -1
             position_data[:, 1:2] += 1
             uvData0 = position_data.tolist()
-            mesh_data.UV_data[0] = [mu.Vector(x) for x in uvData0]
+            mesh_data.UV_data[0] = [mathutils.Vector(x) for x in uvData0]
         elif type == "TEXCOORD1":
             uv_count += 1
             position_data[:, 1:2] *= -1
             position_data[:, 1:2] += 1
             uvData1 = position_data.tolist()
-            mesh_data.UV_data[1] = [mu.Vector(x) for x in uvData1]
+            mesh_data.UV_data[1] = [mathutils.Vector(x) for x in uvData1]
         elif type == "TEXCOORD2":
             uv_count += 1
             position_data[:, 1:2] *= -1
             position_data[:, 1:2] += 1
             uvData2 = position_data.tolist()
-            mesh_data.UV_data[2] = [mu.Vector(x) for x in uvData2]
+            mesh_data.UV_data[2] = [mathutils.Vector(x) for x in uvData2]
         elif type == "TEXCOORD3":
             uv_count += 1
             position_data[:, 1:2] *= -1
             position_data[:, 1:2] += 1
             uvData3 = position_data.tolist()
-            mesh_data.UV_data[3] = [mu.Vector(x) for x in uvData3]
+            mesh_data.UV_data[3] = [mathutils.Vector(x) for x in uvData3]
         elif type == "NORMAL4FACTORS0":
             pass
         elif type == "NORMAL2FACTORS0":

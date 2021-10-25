@@ -117,3 +117,46 @@ def _is_amdl_from_episode_duscae(amdl_file):
             break
 
     return is_episode_duscae
+
+
+def _skip_top(gfxbin_file, file_size):
+    """
+    Internal use only
+    Skips the data at the top of the gfxbin file
+    """
+    lt = []
+    unk0 = _read_part(gfxbin_file)
+    unk1 = _read_part(gfxbin_file)
+    strlen_n = struct.unpack("B", gfxbin_file.read(1))[0] - 0xA0
+    stop, p = False, 0
+    while not stop and gfxbin_file.tell() < file_size:
+        st = _read_string(gfxbin_file)
+        if "asset_uri" in st:
+            stop = True
+            unk0 = struct.unpack("B", gfxbin_file.read(1))[0]
+            strlen0 = struct.unpack("B", gfxbin_file.read(1))[0]  # asset_uri
+            lt.append({"asset": _read_string(gfxbin_file)})         # asset_uri
+            strlen1 = struct.unpack("B", gfxbin_file.read(1))[0]  # ref
+            lt.append({"ref": _read_string(gfxbin_file)})           # ref
+            unk1 = struct.unpack("B", gfxbin_file.read(1))[0]
+            strlen2 = struct.unpack("B", gfxbin_file.read(1))[0]
+            lt.append({"gmdl": _read_string(gfxbin_file)})          # gmdl file
+
+            t = gfxbin_file.tell()
+            z0 = struct.unpack("B", gfxbin_file.read(1))[0]
+            z1 = _read_string(gfxbin_file, 3)
+
+            if z1 == "src":
+                unk2 = struct.unpack("B", gfxbin_file.read(1))[0]
+                strlen3 = struct.unpack("B", gfxbin_file.read(1))[0]
+                lt.append({"src": _read_string(gfxbin_file)})       # gmdl file
+                u = gfxbin_file.tell()
+                p = _read_part(gfxbin_file)
+                lt.append({"count": p})
+                gfxbin_file.seek(u, 0)
+            else:
+                gfxbin_file.seek(t, 0)
+                p = _read_part(gfxbin_file)
+                lt.append({"count": p})
+                gfxbin_file.seek(t, 0)
+    return lt

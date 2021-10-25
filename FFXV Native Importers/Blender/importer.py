@@ -8,6 +8,7 @@ from .internal._read_bone_dictionary import _read_bone_dictionary
 from .internal._read_mesh_metadata import _read_mesh_count, _read_mesh_metadata
 from .internal._read_mesh_data import _read_mesh_data
 from .internal._read_armature_data import _read_armature_data
+from .internal._read_helper import _skip_top
 
 
 def import_mesh_data(state):
@@ -17,13 +18,18 @@ def import_mesh_data(state):
     """
     gfxbin_file = open(state.gfxbin_file_path, "rb")
 
+    # Skip over the top to get the cursor into position
+    _skip_top(gfxbin_file, state.gfxbin_file_size)
+
     if state.gpubin_file_exists:
         gpubin_file = open(state.gpubin_file_path, "rb")
 
     mesh_data = []
     bone_dictionary = _read_bone_dictionary(gfxbin_file)
+    mesh_count = _read_mesh_count(gfxbin_file)
+    print(mesh_count)
 
-    for i in range(_read_mesh_count(gfxbin_file)):
+    for i in range(mesh_count):
         mesh_metadata = _read_mesh_metadata(gfxbin_file)
 
         if mesh_metadata.lod_check == 0 and state.gpubin_file_exists:
@@ -31,8 +37,8 @@ def import_mesh_data(state):
             if mesh is not None:
                 # Shouldn't need bone_dictionary stored per mesh
                 # Refactor this later
-                mesh_data.bone_dictionary = bone_dictionary
-                mesh_data.append()
+                mesh.bone_dictionary = bone_dictionary
+                mesh_data.append(mesh)
 
     gfxbin_file.close()
 

@@ -9,7 +9,7 @@ from .version_helper import (
 
 def generate_mesh(state, mesh_data):
     mesh = bpy.data.meshes.new(mesh_data.name)
-    mesh.from_pydata(mesh_data.VA, [], mesh_data.faces)
+    mesh.from_pydata(mesh_data.VA, [], mesh_data.face_data)
 
     if state.is_new_blender:
         for data in range(mesh_data.uv_count):
@@ -38,22 +38,22 @@ def generate_mesh(state, mesh_data):
 
     scene_objects = get_scene_objects()
     if state.is_new_blender:
-        if does_collection_exist(mesh_data.file_name):
-            bpy.data.collections[mesh_data.file_name].objects.link(
+        if does_collection_exist(state.file_name_no_extension):
+            bpy.data.collections[state.file_name_no_extension].objects.link(
                 mesh_object)
         else:
-            newCol = bpy.data.collections.new(mesh_data.file_name)
-            if does_collection_exist(mesh_data.group_name):
-                bpy.data.collections[mesh_data.group_name].children.link(
+            newCol = bpy.data.collections.new(state.file_name_no_extension)
+            if does_collection_exist(state.group_name):
+                bpy.data.collections[state.group_name].children.link(
                     newCol)
             else:
                 bpy.context.scene.collection.children.link(newCol)
-            bpy.data.collections[mesh_data.file_name].objects.link(
+            bpy.data.collections[state.file_name_no_extension].objects.link(
                 mesh_object)
     else:
         bpy.context.scene.objects.link(mesh_object)
         for key in scene_objects:
-            if key.type == 'ARMATURE' and mesh_data.group_name in key.name:
+            if key.type == 'ARMATURE' and state.group_name in key.name:
                 mesh_object.parent = key
                 break
         mesh_object.select = True
