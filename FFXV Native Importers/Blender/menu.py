@@ -33,7 +33,7 @@ class ImportOperator(Operator, ImportHelper):
         print(armature_data)
 
         # Generate Blender Objects from Python Object Data
-        generate_armature(state, armature_data)
+        generate_armature(armature_data)
 
         for mesh in mesh_data:
             generate_mesh(state, mesh)

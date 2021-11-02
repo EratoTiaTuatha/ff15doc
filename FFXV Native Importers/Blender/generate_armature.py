@@ -5,95 +5,187 @@ imported into the ArmatureData class
 
 import mathutils
 import time
+import math
 
 import bpy
 from rna_prop_ui import rna_idprop_ui_prop_get
-from numpy.linalg import inv
-
+from mathutils import Matrix, Vector
+from numpy.linalg import solve
 from .version_helper import does_collection_exist
 
 
-def generate_armature(state, armature_data):
-    if armature_data is None:
-        return
+def createEmptyTree(armature, context):
+    miniscene = {}
+    createRootNub(miniscene)
+    for ix, bone in enumerate(armature):
+        if ix not in miniscene:
+            createNub(ix, bone, armature, miniscene)
+    miniscene[255].name = 'Armature'
+    miniscene[255]["Type"] = "SkeletonRoot"
+    context.armature = miniscene
+    return
 
-    armature_name = state.group_name + "_Armature"
 
-    armature = bpy.data.armatures.new(armature_name)
+def createRootNub():
+    o = bpy.data.objects.new("Root", None)
+    bpy.context.scene.objects.link(o)
+    o.show_wire = True
+    o.show_x_ray = True
+    return o
 
-    if state.is_new_blender:
-        armature.display_type = 'STICK'
-    else:
-        armature.draw_type = 'WIRE'
 
-    armature_object = bpy.data.objects.new(armature_name, armature)
-    armature_object.data.name = state.group_name + "_Armature_Data"
+def createNub(bone, parent=None):
+    # raise ValueError(bone.keys())
+    # o = bpy.data.objects.new("Bone.%03d"%ix, None )
+    o = bpy.data.objects.new("%s" % bone.name, None)  # ix
+    bpy.context.scene.objects.link(o)
+    o.show_wire = False
+    o.show_x_ray = True
+    o.show_bounds = False
+    o.empty_draw_size = 0.01
+    o.empty_draw_type = "SPHERE"
+    transformedMatrix = bone.matrix
+    # transformedMatrix = Matrix.Identity(4)
+    # transformedMatrix.translation = transformedMatrix2.translation
+    o.parent = parent
+    bpy.context.scene.update()
+    o.matrix_world = Matrix.Identity(4) if parent is None else transformedMatrix
+    bpy.context.scene.update()
+    if bone.name == "C_Spine1":
+        print(o.matrix_local)
+        print()
+    for child in bone.children:
+        createNub(child, o)
+    return o
 
-    if state.is_new_blender:
-        if does_collection_exist(state.group_name):
-            bpy.data.collections[state.group_name].objects.link(
-                armature_object)
+
+def visitBones(bone, visited):
+    visited.add(bone.id)
+    for child in bone.children:
+        if child.id in visited:
+            raise ValueError("Cycle Detected at bone %d:%s" % (bone.id, bone.name))
+        visitBones(child, visited)
+    return visited
+
+
+def detectCycles(root, miniscene):
+    for rootb in root:
+        visited = set()
+        visitBones(rootb, visited)
+    for bid in miniscene:
+        if bid not in visited:
+            bone = miniscene[bid]
+            # print(bone.name, bone.parent if not hasattr(bone.parent,"id") else bone.parent.name)
+            raise ValueError("Disconnected Bone %d:%s" % (bone.id, bone.name))
+    return
+
+
+def processArmatureData(armature_data):
+    root = []
+    miniscene = {}
+    for bone in armature_data.bones:
+        if bone.id in miniscene:
+            raise KeyError("Duplicated ID %d" % bone.id)
         else:
-            bpy.context.scene.collection.objects.link(armature_object)
+            bone.children = []
+            miniscene[bone.id] = bone
+            bone.matrix = Matrix(solve(bone.head_position_matrix, Matrix.Identity(4)))
+    for bone in armature_data.bones:
+        if bone.id:
+            bone.parent = miniscene[armature_data.parent_IDs[bone.id - 1]]
+            miniscene[armature_data.parent_IDs[bone.id - 1]].children.append(bone)
+        else:
+            root.append(bone)
+            bone.parent = None
+    detectCycles(root, miniscene)
+    return root
 
-        bpy.context.view_layer.objects.active = armature_object
-        armature_object.show_in_front = True
+
+def _generate_armature(armature_data):
+    world = createRootNub()
+    root = processArmatureData(armature_data)
+    for rootb in root:
+        rootEmpty = createNub(rootb)
+        rootEmpty.parent = world
+    return world
+
+
+def distance(point, origin, line):
+    pointPrime = point - origin
+    a = pointPrime.project(line).magnitude
+    c = pointPrime.magnitude
+    # a2+b2 = c2
+    return c ** 2 - a ** 2
+
+
+def minimizeDistance(origin, transform, points):
+    line = transform @ Vector([0, 1, 0])
+    minima = -1
+    minimizer = None
+    dst = None
+    for point in points:
+        if point.matrix.translation == origin:
+            continue
+        d = distance(point.matrix.translation, origin, line)
+        if 0 < d < minima or minima == -1:
+            minima = d
+            minimizer = point
+            dst = (point.matrix.translation - origin).magnitude
+            # return point.matrix.translation
+            break
+    if minimizer is None:
+        return None
+    return origin + (transform @ Vector([0, dst, 0, 0])).to_3d()
+
+
+def matGen(ixlist):
+    m = [[1 if j == i else (-1 if j == i % 10 else 0) for j in range(len(ixlist))] for i in ixlist]
+    return Matrix(m)
+
+
+def createBone(bone, armature, parent=None, per=[1, 2, 0, 3]):
+    new_bone = armature.edit_bones.new(bone.name)
+    new_bone["ID"] = bone.id
+    transformedMatrix = bone.matrix
+    if parent:
+        new_bone.parent = parent
+        correction = matGen(per)
+        transform = transformedMatrix @ correction
     else:
-        bpy.context.scene.objects.link(armature_object)
-        bpy.context.scene.objects.active = armature_object
-        bpy.context.object.show_x_ray = True
+        correction = matGen(per)
+        transform = transformedMatrix @ correction
+    new_bone.head = transform.translation
+    preferred = minimizeDistance(transform.translation, transform, bone.children)
+    if preferred is None:
+        if parent is not None:
+            delta = transform @ Vector([0, min(0.01, parent.length), 0, 0])
+            preferred = transform.translation + delta.to_3d()
+            # print(bone.name,"Parent Length",transform.determinant(),delta.length)
+        else:
+            # print(bone.name,"Arbitrary Length")
+            preferred = transform.translation + transform @ Vector([0, 0.01, 0])
+    if preferred == transform.translation:
+        # print(bone.name,"Arbitrary Length - Fixed")
+        preferred = transform.translation + Vector([0, 0.01, 0])
+    new_bone.tail = preferred
+    new_bone.matrix = transform
+    for child in bone.children:
+        createBone(child, armature, new_bone, per)
 
+
+def generate_armature(armature_data):
+    armature_name = "Armature"
+    armature = bpy.data.armatures.new(armature_name)
+    armature_object = bpy.data.objects.new(armature_name, armature)
+    armature_object.data.name = "Armature_Data"
+    collection = bpy.data.collections.new("Import")
+    bpy.context.scene.collection.children.link(collection)
+    bpy.data.collections["Import"].objects.link(armature_object);
+    bpy.context.view_layer.objects.active = armature_object
+    # bpy.context.object.show_x_ray = True
     bpy.ops.object.mode_set(mode='EDIT')
 
-    adjusted = {}
-
-    for bone in armature_data.bones:
-        adjusted[bone.id] = False
-
-    for bone in armature_data.bones:
-        new_bone = bpy.context.active_object.data.edit_bones.new(bone.name)
-        rna_idprop_ui_prop_get(new_bone, "ID", create=True)
-        new_bone["ID"] = bone.id
-
-        print("Processing bone " + str(bone.id))
-
-        if bone.id > 0:
-            parent_id = armature_data.parent_IDs[bone.id - 1]
-            parent_name = armature_data.bones[parent_id].name
-
-            head_position_matrix = inv(bone.head_position_matrix)
-            head_position = mathutils.Vector(
-                (head_position_matrix[0][3],
-                 head_position_matrix[1][3],
-                 head_position_matrix[2][3]))
-
-            parent = bpy.context.active_object.data.edit_bones[parent_name]
-
-            if not adjusted[parent_id]:
-                parent.tail = head_position
-                adjusted[parent_id] = True
-                if parent.head == parent.tail:
-                    parent.tail = parent.tail + \
-                        mathutils.Vector((0.001, 0.001, 0.001))
-
-            new_bone.parent = parent
-            new_bone.head = head_position
-            new_bone.tail = head_position + \
-                mathutils.Vector((0.001, 0.001, 0.001))
-
-            print("Bone[" + str(bone.id) + "] " + bone.name + " (Parent[" +
-                  str(parent_id) + "] " + parent_name + ") at " + str(head_position))
-        else:
-            head_position_matrix = inv(bone.head_position_matrix)
-            head_position = mathutils.Vector(
-                (head_position_matrix[0][3],
-                 head_position_matrix[1][3],
-                 head_position_matrix[2][3]))
-
-            new_bone.head = head_position
-            # Needs some length or Blender will delete
-            new_bone.tail = mathutils.Vector((0, 0, 0.1))
-            print("Bone[" + str(bone.id) + "] " + bone.name +
-                  " (NO PARENT) at " + str(head_position))
-
+    root = processArmatureData(armature_data)
+    for rootb in root:
+        createBone(rootb, armature)
     bpy.ops.object.mode_set(mode='OBJECT')
