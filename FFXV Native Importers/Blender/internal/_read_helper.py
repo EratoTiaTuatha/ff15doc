@@ -81,9 +81,9 @@ def _read_unknown_count(byte):
 def _read_byte_count(type):
     """
     Internal use only
-    Appears to take a type (not sure what kind of type)
-    And determine the byte count based on that type
-    Returns the byte count
+    Type is an integer corresponding to a data type
+    The integer comes from the GFXBin
+    Returns the number of bytes in the given data type
     """
     byte_count = 0
     if type == 6:

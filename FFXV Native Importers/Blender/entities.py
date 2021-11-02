@@ -32,6 +32,7 @@ class MeshData():
         self.bone_ids = []
         self.bone_dictionary = {}
         self.weights = []
+        self.vertex_colors = {}
         self.name = ""
         self.uv_count = 0
 
@@ -65,7 +66,7 @@ class MeshExtraMetadata():
     def __init__(self):
         self.counter = []
         self.data = {}
-        self.bc = 0
+        self.total_byte_count = 0
         self.stride = 0
         self.offset = 0
         self.item_count = 0

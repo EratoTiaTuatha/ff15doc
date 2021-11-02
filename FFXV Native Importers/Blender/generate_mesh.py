@@ -31,6 +31,18 @@ def generate_mesh(state, mesh_data):
         per_loop_list = [uv for pair in per_loop_list for uv in pair]
         mesh.uv_layers[i].data.foreach_set("uv", per_loop_list)
 
+    for i in mesh_data.vertex_colors:
+        vertex_colors = mesh_data.vertex_colors[i]
+        per_loop_list = [0.0] * len(mesh.loops)
+
+        for loop in mesh.loops:
+            if loop.vertex_index < len(vertex_colors):
+                per_loop_list[loop.index] = vertex_colors[loop.vertex_index]
+
+        per_loop_list = [colors for pair in per_loop_list for colors in pair]
+        mesh.vertex_colors.new(name=mesh_data.name + "_VC_" + str(i))
+        mesh.vertex_colors[i].data.foreach_set("color", per_loop_list)
+
     mesh.validate()
     mesh.update()
 

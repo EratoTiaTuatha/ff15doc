@@ -202,16 +202,16 @@ def _read_extra_mesh_metadata(gfxbin_file, first):
         metadata.counter.append(end)
 
         if i == 0:
-            metadata.bc = end
+            metadata.total_byte_count = end
         else:
             start = metadata.counter[i-1]
-            metadata.bc = end - start
+            metadata.total_byte_count = end - start
 
         metadata.data[name]["start"] = start
         metadata.data[name]["end"] = end
 
-        tbc = _read_byte_count(metadata.data[name]["d_type"])
-        metadata.data[name]["item_subCount"] = metadata.bc // tbc
+        type_byte_count = _read_byte_count(metadata.data[name]["d_type"])
+        metadata.data[name]["item_subCount"] = metadata.total_byte_count // type_byte_count
 
     # If this is the first record, we need to skip the next two bytes
     if first:

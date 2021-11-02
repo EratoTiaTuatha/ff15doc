@@ -135,6 +135,10 @@ def _read_normals_and_UVs(gpubin_file, metadata, mesh_data):
             pass
         elif type == "NORMAL2FACTORS0":
             pass
+        else:
+            for i in range(4):
+                if type == "COLOR" + str(i):
+                    mesh_data.vertex_colors[i] = position_data
 
         mesh_data.uv_count = uv_count
 
@@ -219,7 +223,7 @@ def _get_position_data(start, end, count, subCount, type, data):
         #     dtype='<L').reshape((count, subCount))
         # return positionData
         pos = data[:, start:end].ravel().view(
-            dtype='<L').reshape((count, subCount))
+            dtype='<L')  # .reshape((count, subCount))
         return pos
     elif type == 26:
         pos = data[:, start:end].ravel().view(
