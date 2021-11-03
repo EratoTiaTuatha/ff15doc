@@ -1,16 +1,29 @@
-# FFXV Blender GFXBin Import Add-on
+# FFXV Blender GFXBin Add-on
 
-This fork is simply a refactor of the original add-on to ensure the script registers as an add-on in Blender and to make it more readable for other developers that wish to learn from it.
+This fork is a largely rewritten version of the Blender add-on that has been updated to include functionality that was missing previously. The Maya plugin has not been changed and is currently not planned to be updated or maintained.
 
-# Code Editing
+## Contributions
 
-It is recommended to use VSCode to edit the code as it is able to provide autocompletion, intellisense, and can automatically detect PEP8 specification errors and correct them on save.
+* Huge thanks to AmpersandAsterisk (https://github.com/AsteriskAmpersand) for an incredibly generous amount of work on the armature transformations and help with understanding parts of the file formats
+* Thanks to impatient-traveler for a huge amount of assistance in understanding the model formats, applying the data, and debugging issues
+* Thanks to sai for the fixes to the original add-on to get it working in Blender 2.8+
 
-The settings.json under .vscode already provides the required settings, you simply need the following tools:
+## Features
 
-- VSCode
-- Python Extension for VSCode
-- Python itself (author uses 3.5.3 as this is the version Blender 2.79b uses)
-- pystylecode
-- autopep8
-- Optional: Fake bpy modules for bpy autocomplete
+* Full import of Mesh, UV Maps, etc
+* Full import of Armature (currently uses a heuristic to determine bone lengths, won't be quite 100% true to the original in places)
+* Full import of Vector Colors
+
+## Installation
+
+You will need the contents of the **FFXV Native Importers > Blender** folder.
+
+One way to do this would be to go to **Code > Download ZIP** at the top of this page.
+
+You can then either copy the Blender folder directly to your Blender add-ons directory, or ZIP the Blender folder and install the add-on as ZIP through the Blender add-ons interface.
+
+## Roadmap
+
+* Update importer so models aren't back-to-front
+* Improve armature import to correct final minor inaccuracies
+* Write GFXBin exporter
