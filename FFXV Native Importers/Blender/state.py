@@ -73,7 +73,14 @@ class StateData:
         Internal use only
         Use group_name to get the stored value
         """
-        return os.path.dirname(gfxbin_file_path).split("\\")[-2]
+        file_name = gfxbin_file_path.split("\\")[-1]
+        group_name = ""
+        for string in file_name.split("."):
+            if string != "gmdl" and string != "gfxbin":
+                if len(group_name) > 0:
+                    group_name += "."
+                group_name += string
+        return group_name
 
     def _get_is_new_blender(cls):
         """

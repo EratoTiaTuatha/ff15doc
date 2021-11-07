@@ -5,7 +5,6 @@ Runs the import and logs the time taken
 
 import time
 
-import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
 from mathutils import Matrix, Vector
