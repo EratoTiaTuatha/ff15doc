@@ -12,13 +12,23 @@ def generate_mesh(state, mesh_data):
     mesh.from_pydata(mesh_data.VA, [], mesh_data.face_data)
 
     if state.is_new_blender:
-        for data in range(mesh_data.uv_count):
-            mesh.uv_layers.new(name=mesh_data.name +
-                               "_TXUV" + "_0" + str(data))
+        for i in range(mesh_data.uv_count):
+            if i == 0:
+                new_name = "map1"
+            elif i == 1:
+                new_name = "mapLM"
+            else:
+                new_name = "map" + str(i + 1)
+            mesh.uv_layers.new(name=new_name)
     else:
-        for data in range(mesh_data.uv_count):
-            mesh.uv_textures.new(name=mesh_data.name +
-                                 "_TXUV" + "_0" + str(data))
+        for i in range(mesh_data.uv_count):
+            if i == 0:
+                new_name = "map1"
+            elif i == 1:
+                new_name = "mapLM"
+            else:
+                new_name = "map" + str(i + 1)
+            mesh.uv_textures.new(name=new_name)
 
     for i in range(mesh_data.uv_count):
         uv_data = mesh_data.UV_data[i]
@@ -40,7 +50,10 @@ def generate_mesh(state, mesh_data):
                 per_loop_list[loop.index] = vertex_colors[loop.vertex_index]
 
         per_loop_list = [colors for pair in per_loop_list for colors in pair]
-        mesh.vertex_colors.new(name=mesh_data.name + "_VC_" + str(i))
+        new_name = "colorSet"
+        if i > 0:
+            new_name += str(i)
+        mesh.vertex_colors.new(name=new_name)
         mesh.vertex_colors[i].data.foreach_set("color", per_loop_list)
 
     mesh.validate()
@@ -49,27 +62,7 @@ def generate_mesh(state, mesh_data):
     mesh_object = bpy.data.objects.new(mesh_data.name, mesh)
 
     scene_objects = get_scene_objects()
-    if state.is_new_blender:
-        if does_collection_exist(state.file_name_no_extension):
-            bpy.data.collections[state.file_name_no_extension].objects.link(
-                mesh_object)
-        else:
-            newCol = bpy.data.collections.new(state.file_name_no_extension)
-            if does_collection_exist(state.group_name):
-                bpy.data.collections[state.group_name].children.link(
-                    newCol)
-            else:
-                bpy.context.scene.collection.children.link(newCol)
-            bpy.data.collections[state.file_name_no_extension].objects.link(
-                mesh_object)
-    else:
-        bpy.context.scene.objects.link(mesh_object)
-        for key in scene_objects:
-            if key.type == 'ARMATURE' and state.group_name in key.name:
-                mesh_object.parent = key
-                break
-        mesh_object.select = True
-
+    state.get_collection().objects.link(mesh_object)
     mesh.polygons.foreach_set("use_smooth", [True] * len(mesh.polygons))
 
     # Thanks Sai for the fix here
@@ -90,11 +83,13 @@ def generate_mesh(state, mesh_data):
             vertex_group.add([key], vertex_weight, 'ADD')
 
     mod = mesh_object.modifiers.new(
-        type="ARMATURE", name="ArmatureMOD")
+        type="ARMATURE", name="Armature")
     mod.use_vertex_groups = True
 
-    armature = get_armature(scene_objects, state.group_name)
+    armature = bpy.data.objects["Armature"]
     mod.object = armature
+
+    mesh_object.parent = armature
 
 
 def generate_weight_data(weights, bone_ids, bone_dictionary):

@@ -24,13 +24,13 @@ def does_collection_exist(group_name):
 
 def does_armature_exist(scene_objects, group_name):
     exists = True
-    for object in scene_objects:
-        if object.type == 'ARMATURE' and group_name in object.name:
+    for scene_object in scene_objects:
+        if scene_object.type == 'ARMATURE' and group_name in scene_object.name:
             exists = False
     return exists
 
 
 def get_armature(scene_objects, group_name):
-    for object in scene_objects:
-        if object.type == 'ARMATURE' and group_name in object.name:
-            return object
+    for scene_object in scene_objects:
+        if scene_object.type == 'ARMATURE' and group_name in scene_object.name:
+            return scene_object

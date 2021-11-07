@@ -12,14 +12,14 @@ def _read_string(file, number_of_bytes=200):
     Reads a string of a specific length from the given file
     and returns the bytes converted back to ASCII
     """
-    aByte = file.read(1)
-    s = aByte
-    c = 0
-    while aByte and ord(aByte) != 0 and c < number_of_bytes:
-        aByte = file.read(1)
-        s += aByte
-        c += 1
-    return s[:-1].decode('ascii', errors='ignore')
+    ascii_byte = file.read(1)
+    string_value = ascii_byte
+    byte_count = 0
+    while ascii_byte and ord(ascii_byte) != 0 and byte_count < number_of_bytes:
+        ascii_byte = file.read(1)
+        string_value += ascii_byte
+        byte_count += 1
+    return string_value[:-1].decode('ascii', errors='ignore')
 
 
 def _align(ptr, alignment):
@@ -28,7 +28,7 @@ def _align(ptr, alignment):
     Not really sure what this voodoo magic does
     """
     alignment -= 1
-    return (ptr + alignment) & ~(alignment)
+    return (ptr + alignment) & ~alignment
 
 
 def _read_part(file):
@@ -38,7 +38,6 @@ def _read_part(file):
     Seems to detect patterns and read specific number of bytes accordingly
     Returns the read bytes
     """
-    val = 0
     ch = struct.unpack("B", file.read(1))[0]
     if ch == 0xCE:
         val = struct.unpack("<L", file.read(4))[0]
@@ -78,7 +77,7 @@ def _read_unknown_count(byte):
     return count
 
 
-def _read_byte_count(type):
+def _read_byte_count(data_type):
     """
     Internal use only
     Type is an integer corresponding to a data type
@@ -86,19 +85,19 @@ def _read_byte_count(type):
     Returns the number of bytes in the given data type
     """
     byte_count = 0
-    if type == 6:
+    if data_type == 6:
         byte_count = 2
-    elif type == 8:
+    elif data_type == 8:
         byte_count = 2
-    elif type == 12:
+    elif data_type == 12:
         byte_count = 1
-    elif type == 13:
+    elif data_type == 13:
         byte_count = 1
-    elif type == 14:
+    elif data_type == 14:
         byte_count = 1
-    elif type == 16:
+    elif data_type == 16:
         byte_count = 4
-    elif type == 26:
+    elif data_type == 26:
         byte_count = 2
     return byte_count
 

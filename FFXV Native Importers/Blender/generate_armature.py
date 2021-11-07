@@ -3,15 +3,9 @@ Builds a Blender Armature from armature data
 imported into the ArmatureData class
 """
 
-import mathutils
-import time
-import math
-
 import bpy
-from rna_prop_ui import rna_idprop_ui_prop_get
 from mathutils import Matrix, Vector
 from numpy.linalg import solve
-from .version_helper import does_collection_exist
 
 
 def createEmptyTree(armature, context):
@@ -89,7 +83,7 @@ def processArmatureData(armature_data):
         else:
             bone.children = []
             miniscene[bone.id] = bone
-            bone.matrix = Matrix(solve(bone.head_position_matrix, Matrix.Identity(4)))
+            bone.matrix = Matrix(solve(bone.transformation_matrix, Matrix.Identity(4)))
     for bone in armature_data.bones:
         if bone.id:
             bone.parent = miniscene[armature_data.parent_IDs[bone.id - 1]]
@@ -173,14 +167,14 @@ def createBone(bone, armature, parent=None, per=[1, 2, 0, 3]):
         createBone(child, armature, new_bone, per)
 
 
-def generate_armature(armature_data):
+def generate_armature(state, armature_data):
     armature_name = "Armature"
     armature = bpy.data.armatures.new(armature_name)
     armature_object = bpy.data.objects.new(armature_name, armature)
-    armature_object.data.name = "Armature_Data"
-    collection = bpy.data.collections.new("Import")
+    armature_object.data.name = "Armature"
+    collection = state.get_collection()
     bpy.context.scene.collection.children.link(collection)
-    bpy.data.collections["Import"].objects.link(armature_object);
+    collection.objects.link(armature_object);
     bpy.context.view_layer.objects.active = armature_object
     # bpy.context.object.show_x_ray = True
     bpy.ops.object.mode_set(mode='EDIT')

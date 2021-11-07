@@ -8,12 +8,12 @@ import time
 import bpy
 from bpy.types import Operator
 from bpy_extras.io_utils import ImportHelper
+from mathutils import Matrix, Vector
 
 from .state import StateData
 from .importer import import_mesh_data, import_armature_data
 from .generate_armature import generate_armature
 from .generate_mesh import generate_mesh
-from .version_helper import does_collection_exist
 
 
 class ImportOperator(Operator, ImportHelper):
@@ -33,15 +33,15 @@ class ImportOperator(Operator, ImportHelper):
         print(armature_data)
 
         # Generate Blender Objects from Python Object Data
-        generate_armature(armature_data)
+        generate_armature(state, armature_data)
 
         for mesh in mesh_data:
             generate_mesh(state, mesh)
 
-            if state.is_new_blender:
-                if not does_collection_exist(state.group_name):
-                    collect = bpy.data.collections.new(str(state.group_name))
-                    bpy.context.scene.collection.children.link(collect)
+        # Mirror the objects so it isn't back to front
+        mirror = Matrix.Scale(-1, 4, Vector([0, 1, 0])).to_4x4()
+        for obj in state.get_collection().objects:
+            obj.matrix_world *= mirror
 
         # Report time elapsed
         elapsed = time.time() - start_time

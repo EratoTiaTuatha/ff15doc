@@ -1,9 +1,10 @@
 import os
 
+import bpy
 from bpy.app import version
 
 
-class StateData():
+class StateData:
     """
     Class that holds state data for the add-on
     Internal methods are run on init
@@ -11,6 +12,7 @@ class StateData():
     """
 
     def __init__(self, gfxbin_file_path):
+        self.collection = None
         self.gfxbin_file_path = gfxbin_file_path
         self.gfxbin_file_size = os.path.getsize(gfxbin_file_path)
         self.gpubin_file_path = self._get_gpubin_file_path(gfxbin_file_path)
@@ -26,6 +28,11 @@ class StateData():
         # Checks whether Blender version is 2.8+
         # as some code needs to be adjusted for compatibility
         self.is_new_blender = self._get_is_new_blender()
+
+    def get_collection(self):
+        if self.collection is None:
+            self.collection = bpy.data.collections.new(self.group_name)
+        return self.collection
 
     def _get_file_name_no_extension(cls, gfxbin_file_path):
         """

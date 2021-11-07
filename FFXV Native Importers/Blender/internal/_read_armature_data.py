@@ -6,6 +6,7 @@ Reads armature data from the amdl file
 import struct
 
 import numpy
+from mathutils import Matrix
 
 from ..entities import ArmatureData, BoneData
 from ._read_helper import _is_amdl_from_episode_duscae, _read_string, _align
@@ -134,12 +135,12 @@ def _read_armature_data(amdl_file):
 
         temporary_matrix[:, [1, 2]] = temporary_matrix[:, [2, 1]]
         temporary_matrix[1:3] = numpy.flipud(temporary_matrix[1:3])
-        head_position_matrix = temporary_matrix.transpose()
+        transformation_matrix = temporary_matrix.transpose()
 
         bone_data = BoneData()
         bone_data.id = i
         bone_data.name = bone_names[i]
-        bone_data.head_position_matrix = head_position_matrix
+        bone_data.transformation_matrix = Matrix(transformation_matrix)
         armature_data.bones.append(bone_data)
 
     return armature_data
