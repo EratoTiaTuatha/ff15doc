@@ -2,12 +2,12 @@
 Menu item for the import functionality
 Runs the import and logs the time taken
 """
-
 import time
 
-from bpy.types import Operator
-from bpy_extras.io_utils import ImportHelper
+import bpy
 from mathutils import Matrix, Vector
+from bpy.types import Operator, Mesh
+from bpy_extras.io_utils import ImportHelper
 
 from .state import StateData
 from .importer import import_mesh_data, import_armature_data
@@ -41,6 +41,21 @@ class ImportOperator(Operator, ImportHelper):
         mirror = Matrix.Scale(-1, 4, Vector([0, 1, 0])).to_4x4()
         for obj in state.get_collection().objects:
             obj.matrix_world *= mirror
+
+        bpy.ops.object.select_all(action='SELECT')
+        bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+        bpy.ops.object.select_all(action='DESELECT')
+
+        for obj in state.get_collection().objects:
+            if obj.type == 'MESH':
+                bpy.context.view_layer.objects.active = obj
+                bpy.ops.object.mode_set(mode='EDIT')
+                bpy.context.view_layer.objects.active = obj
+                bpy.ops.mesh.select_all(action='SELECT')
+                bpy.ops.mesh.flip_normals()
+                bpy.ops.object.mode_set(mode='OBJECT')
+
+        bpy.context.view_layer.objects.active = None
 
         # Report time elapsed
         elapsed = time.time() - start_time
