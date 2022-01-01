@@ -1,3 +1,5 @@
+**NOTICE: This add-on has been merged with [our much larger FFXV modding tool, Flagrum](https://github.com/Kizari/Flagrum). Native gfxbin import can now be done through Flagrum, which is up-to-date and more functional. As such, this repository is no longer being updated or maintained.**
+
 # FFXV Blender GFXBin Add-on
 
 This fork is a largely rewritten version of the Blender add-on that has been updated to include functionality that was missing previously.
